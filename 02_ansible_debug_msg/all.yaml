@@ -1,0 +1,9 @@
+- name: Delete known host entry
+  hosts: q1
+  gather_facts: false
+  tasks:
+    - local_action: shell ssh-keygen -R "{{hostvars[inventory_hostname]['ansible_host']}}"
+
+- name: OS info
+  import_playbook: os.yaml
+

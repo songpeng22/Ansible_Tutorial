@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    q1:
+      hosts:
+        devboard-no1:
+          ansible_host: 172.25.115.87 
+          ansible_user: bizuser
+          ansible_password: bizerba

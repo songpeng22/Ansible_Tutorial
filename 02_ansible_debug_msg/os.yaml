@@ -1,0 +1,15 @@
+---
+- hosts: q1
+  remote_user: bizuser
+  become_method: sudo
+  gather_facts: true
+  ignore_errors: yes
+ 
+  vars:
+    machine_mac: "{{ansible_default_ipv4.macaddress}}"
+    result_path: "../result/{{ansible_hostname}}-{{machine_mac}}"
+
+  tasks:
+    - name: Print debug info
+      debug:
+        msg: "abc"

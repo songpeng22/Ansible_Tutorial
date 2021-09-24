@@ -1,0 +1,10 @@
+---
+- hosts: q1
+  remote_user: bizuser
+  become_method: sudo
+  gather_facts: true
+  ignore_errors: yes
+
+  tasks:
+     - name: Leaving a mark
+       command: "touch /tmp/ansible.file"
