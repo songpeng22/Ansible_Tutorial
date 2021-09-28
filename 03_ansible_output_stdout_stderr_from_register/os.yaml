@@ -1,0 +1,38 @@
+---
+- hosts: q1
+  remote_user: bizuser
+  become_method: sudo
+  gather_facts: true
+  ignore_errors: yes
+ 
+  vars:
+    machine_mac: "{{ansible_default_ipv4.macaddress}}"
+    result_path: "../result/{{ansible_hostname}}-{{machine_mac}}"
+
+  tasks:
+    - name: Kernel and distribution version
+      shell:  uname -a && lsb_release -a
+      register: versions
+      changed_when: false
+
+    - name: define variable http and output in the next debug section
+      become: true
+      shell: |
+        echo {{ansible_default_ipv4.address}}
+      register: http
+
+    - debug: msg="{{ http.stdout }}"
+    - debug: msg="{{ http.stderr }}"
+
+      #    - name: Log http header config
+      #local_action: copy content={{ http.stdout }} dest={{result_path}}/http_header_config.txt
+      #changed_when: false
+
+    - name: Turn firewall back on
+      become: true
+      shell: |
+        systemctl start firewalld
+
+    - name: Print debug info
+      debug:
+          msg: "123"

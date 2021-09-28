@@ -1,0 +1,16 @@
+- name: Delete known host entry
+  hosts: q1
+  gather_facts: false
+  tasks:
+    - local_action: shell ssh-keygen -R "{{hostvars[inventory_hostname]['ansible_host']}}"
+
+- name: Clean up result dir
+  hosts: q1
+  remote_user: bizuser
+  gather_facts: true
+
+- name: OS info
+  import_playbook: os.yaml
+
+  vars:
+    machine_mac: "{{ansible_default_ipv4.macaddress}}"
