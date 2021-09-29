@@ -1,0 +1,53 @@
+---
+- hosts: q1
+  remote_user: bizuser
+  become_method: sudo
+  gather_facts: true
+  ignore_errors: yes
+ 
+  vars:
+    machine_mac: "{{ansible_default_ipv4.macaddress}}"
+    result_path: "../result/{{ansible_hostname}}-{{machine_mac}}"
+
+  tasks:
+    - name: Delete any existing test result from previous tests
+      local_action:
+        module: file
+        path: "{{ result_path }}/"
+        state: absent
+    - name: Create local directory for test results
+      local_action:
+        module: file
+        path: "{{result_path}}"
+        state: directory
+
+    - name: Kernel and distribution version
+      shell:  uname -a && lsb_release -a
+      register: versions
+      changed_when: false
+
+    - name: define variable http and output in the next debug section
+      become: true
+      shell: |
+        echo "http header check:"
+        wget --no-proxy -q --server-response http://{{ansible_default_ipv4.address}} 2>&1
+        echo "https header check:"
+        wget --no-proxy -q --no-check-certificate --server-response https://{{ansible_default_ipv4.address}} 2>&1 
+      delegate_to: localhost
+      register: http_header_config
+
+    - debug: msg="{{ http_header_config.stdout }}"
+    - debug: msg="{{ http_header_config.stderr }}"
+
+    - name: Log http header config
+      local_action: copy content={{ http_header_config.stdout }} dest={{result_path}}/http_header_config.txt
+      changed_when: false
+
+    - name: Turn firewall back on
+      become: true
+      shell: |
+        systemctl start firewalld
+
+    - name: Print debug info
+      debug:
+          msg: "123"
